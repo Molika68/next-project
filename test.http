@@ -1,0 +1,12 @@
+# post请求
+# POST http://localhost:3000/api/login HTTP/1.1
+# Content-Type: application/json
+
+# {
+#   "username": "admin",
+#   "password": "admin"
+# }
+
+
+# get请求，获取参数
+GET http://localhost:3000/api/book/1 HTTP/1.1
