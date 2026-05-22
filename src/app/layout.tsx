@@ -1,12 +1,7 @@
-"use client";
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { usePathname } from "next/navigation";
-import { Toaster } from "sonner";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./components/app-sidebar";
+import ClientLayout from "./client-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,36 +13,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: "AI 智能面试官",
+  description: "基于 AI 的模拟面试应用，上传简历后自动生成面试题并给出评价",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const isLoginPage = pathname === "/";
-
   return (
     <html
-      lang="en"
+      lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        {isLoginPage ? (
-          <>
-            {children}
-            <Toaster />
-          </>
-        ) : (
-          <>
-            <SidebarProvider>
-              <AppSidebar />
-              <main className="flex-1 flex flex-col">
-                <SidebarTrigger />
-                {children}
-              </main>
-            </SidebarProvider>
-            <Toaster />
-          </>
-        )}
+      <body className="min-h-full bg-slate-950">
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
