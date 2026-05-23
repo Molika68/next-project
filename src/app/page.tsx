@@ -139,7 +139,7 @@ export default function Home() {
                   disabled={!file || isUploading}
                   className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
                     file && !isUploading
-                      ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/40"
+                      ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 cursor-pointer"
                       : "bg-slate-800 text-slate-500 cursor-not-allowed"
                   }`}>
                   {isUploading ? (

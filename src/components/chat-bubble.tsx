@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
-import type { ChatMessage } from '@/types';
+import { useState, useEffect } from "react";
+import { Icon } from "@iconify/react";
+import type { ChatMessage } from "@/types";
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -10,18 +10,18 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isTyping, setIsTyping] = useState(message.role === 'ai');
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(message.role === "ai");
 
   useEffect(() => {
-    if (message.role !== 'ai') {
+    if (message.role !== "ai") {
       setDisplayedText(message.content);
       return;
     }
 
-    setDisplayedText('');
+    setDisplayedText("");
     setIsTyping(true);
-    
+
     let index = 0;
     const text = message.content;
     const interval = setInterval(() => {
@@ -38,19 +38,28 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
   }, [message.content, message.role]);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
-    <div className={`flex gap-4 animate-msg ${message.role === 'ai' ? '' : 'flex-row-reverse'}`} style={{ animationDelay: `${animationDelay}ms` }}>
+    <div
+      className={`flex gap-4 animate-msg ${message.role === "ai" ? "" : "flex-row-reverse"}`}
+      style={{ animationDelay: `${animationDelay}ms` }}>
       {/* 头像 */}
-      <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${
-        message.role === 'ai'
-          ? 'bg-slate-800 border border-slate-700'
-          : 'bg-indigo-600 shadow-lg shadow-indigo-500/30'
-      }`}>
-        {message.role === 'ai' ? (
-          <Icon icon="solar:user-rounded-bold-duotone" className="text-indigo-400 text-2xl" />
+      <div
+        className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${
+          message.role === "ai"
+            ? "bg-slate-800 border border-slate-700"
+            : "bg-indigo-600 shadow-lg shadow-indigo-500/30"
+        }`}>
+        {message.role === "ai" ? (
+          <Icon
+            icon="solar:user-rounded-bold-duotone"
+            className="text-indigo-400 text-2xl"
+          />
         ) : (
           <Icon icon="solar:user-bold" className="text-white text-xl" />
         )}
@@ -58,11 +67,16 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
 
       {/* 消息内容 */}
       <div className="max-w-[80%]">
-        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-xl ${
-          message.role === 'ai'
-            ? 'chat-bubble-ai text-slate-200'
-            : 'chat-bubble-user text-white'
-        } ${message.evaluation && message.evaluation.technicalScore < 60 ? 'border-l-4 border-l-amber-500' : ''}`}>
+        <div
+          className={`p-4 rounded-2xl text-sm leading-relaxed shadow-xl relative ${
+            message.role === "ai"
+              ? "chat-bubble-ai text-slate-200"
+              : "chat-bubble-user text-white"
+          } ${message.evaluation && message.evaluation.technicalScore < 60 ? "pl-5" : ""}`}>
+          {/* 深度追问橙色边框 */}
+          {message.evaluation && message.evaluation.technicalScore < 60 && (
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 rounded-l-2xl"></div>
+          )}
           {/* 追问标识 */}
           {message.evaluation && message.evaluation.technicalScore < 60 && (
             <div className="flex items-center gap-2 mb-2 text-amber-500 text-xs font-bold">
@@ -77,31 +91,40 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
             )}
           </p>
         </div>
-        
+
         {/* 评价信息 */}
         {message.evaluation && (
           <div className="mt-2 px-3 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
             <div className="flex justify-between items-center mb-2">
               <div className="flex gap-4">
                 <div className="text-center">
-                  <div className="text-cyan-400 font-bold text-xs">{message.evaluation.technicalScore}</div>
+                  <div className="text-cyan-400 font-bold text-xs">
+                    {message.evaluation.technicalScore}
+                  </div>
                   <div className="text-[10px] text-slate-500">技术能力</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-purple-400 font-bold text-xs">{message.evaluation.communicationScore}</div>
+                  <div className="text-purple-400 font-bold text-xs">
+                    {message.evaluation.communicationScore}
+                  </div>
                   <div className="text-[10px] text-slate-500">表达能力</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-green-400 font-bold text-xs">{message.evaluation.experienceScore}</div>
+                  <div className="text-green-400 font-bold text-xs">
+                    {message.evaluation.experienceScore}
+                  </div>
                   <div className="text-[10px] text-slate-500">项目经验</div>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-slate-400 italic">{message.evaluation.feedback}</p>
+            <p className="text-xs text-slate-400 italic">
+              {message.evaluation.feedback}
+            </p>
           </div>
         )}
-        
-        <span className={`text-[10px] text-slate-500 mt-2 block ${message.role === 'ai' ? 'ml-1' : 'text-right mr-1'}`}>
+
+        <span
+          className={`text-[10px] text-slate-500 mt-2 block ${message.role === "ai" ? "ml-1" : "text-right mr-1"}`}>
           {formatTime(message.timestamp)}
         </span>
       </div>

@@ -11,34 +11,38 @@ interface RadarChartProps {
 }
 
 export function RadarChart({ result }: RadarChartProps) {
+  // 动态获取指标数据，优先使用接口返回的 skills，否则使用默认指标
+  const skills = result.skills && result.skills.length > 0
+    ? result.skills
+    : [
+        { name: "技术能力", score: result.technicalScore },
+        { name: "表达能力", score: result.communicationScore },
+        { name: "项目经验", score: result.experienceScore },
+      ];
+
   const option = {
     backgroundColor: "transparent",
+    padding: [10, 10, 10, 10],
     radar: {
-      indicator: [
-        { name: "技术能力", max: 100 },
-        { name: "表达能力", max: 100 },
-        { name: "项目经验", max: 100 },
-      ],
+      indicator: skills.map(skill => ({ name: skill.name, max: 100 })),
       shape: "polygon",
       splitNumber: 4,
+      radius: "75%",
       axisName: {
         color: "#9CA3AF",
-        fontSize: 12,
+        fontSize: 14,
       },
       splitLine: {
         lineStyle: {
-          color: "rgba(255, 255, 255, 0.1)",
+          color: "rgba(124, 58, 237, 0.25)",
         },
       },
       splitArea: {
-        show: true,
-        areaStyle: {
-          color: ["rgba(6, 182, 212, 0.05)", "rgba(124, 58, 237, 0.05)"],
-        },
+        show: false,
       },
       axisLine: {
         lineStyle: {
-          color: "rgba(255, 255, 255, 0.2)",
+          color: "rgba(124, 58, 237, 0.3)",
         },
       },
     },
@@ -47,43 +51,18 @@ export function RadarChart({ result }: RadarChartProps) {
         type: "radar",
         data: [
           {
-            value: [
-              result.technicalScore,
-              result.communicationScore,
-              result.experienceScore,
-            ],
+            value: skills.map(skill => skill.score),
             name: "面试评分",
-            symbol: "circle",
-            symbolSize: 6,
+            symbol: "none",
             lineStyle: {
-              width: 2,
-              color: {
-                type: "linear",
-                x: 0,
-                y: 0,
-                x2: 1,
-                y2: 1,
-                colorStops: [
-                  { offset: 0, color: "#06b6d4" },
-                  { offset: 1, color: "#7c3aed" },
-                ],
-              },
+              width: 2.5,
+              color: "#818cf8",
             },
             areaStyle: {
-              color: {
-                type: "linear",
-                x: 0,
-                y: 0,
-                x2: 1,
-                y2: 1,
-                colorStops: [
-                  { offset: 0, color: "rgba(6, 182, 212, 0.3)" },
-                  { offset: 1, color: "rgba(124, 58, 237, 0.3)" },
-                ],
-              },
+              color: "rgba(129, 140, 248, 0.45)",
             },
             itemStyle: {
-              color: "#06b6d4",
+              color: "#818cf8",
             },
           },
         ],
@@ -92,7 +71,7 @@ export function RadarChart({ result }: RadarChartProps) {
   };
 
   return (
-    <div className="w-full h-64 md:h-80">
+    <div className="w-full h-full min-h-[250px]">
       <ReactECharts
         option={option}
         style={{ height: "100%", width: "100%" }}

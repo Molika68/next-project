@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, KeyboardEvent, useEffect, useRef } from "react";
-import { Icon } from "@iconify/react";
 
 interface AnswerInputProps {
   onSubmit: (answer: string) => void;
@@ -45,8 +44,8 @@ export function AnswerInput({
 
   return (
     <div className="p-6 border-t border-slate-800 bg-slate-900/50 backdrop-blur-sm">
-      <div className="max-w-4xl mx-auto flex gap-4 items-end">
-        <div className="flex-1 relative">
+      <div className="max-w-4xl mx-auto flex gap-4 items-center">
+        <div className="flex-1 relative flex items-center">
           <textarea
             ref={textareaRef}
             value={answer}
@@ -54,22 +53,17 @@ export function AnswerInput({
             onKeyDown={handleKeyDown}
             placeholder="在此输入您的回答..."
             disabled={isLoading || disabled}
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none custom-scrollbar text-slate-200 placeholder:text-slate-500"
+            className="w-full h-11 bg-slate-800 border-2 border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none custom-scrollbar text-slate-200 placeholder:text-slate-500 leading-5"
             rows={1}
           />
-          <div className="absolute right-3 bottom-3 flex gap-2">
-            <button className="p-1 text-slate-500 hover:text-slate-300 transition-colors">
-              <Icon icon="solar:microphone-bold" className="text-xl" />
-            </button>
-          </div>
         </div>
         <button
           onClick={handleSubmit}
           disabled={!answer.trim() || isLoading || disabled}
-          className={`px-4 py-3 rounded-xl font-bold transition-all active:scale-95 ${
+          className={`h-11 px-5 rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center border-2 ${
             answer.trim() && !isLoading && !disabled
-              ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20"
-              : "bg-slate-700 text-slate-500 cursor-not-allowed"
+              ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 border-indigo-600"
+              : "bg-slate-800 text-slate-500 cursor-not-allowed border-slate-700"
           }`}>
           发送
         </button>

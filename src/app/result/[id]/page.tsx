@@ -329,7 +329,7 @@ export default function ResultPage() {
                       Q: {item.questionText}
                     </h4>
                     <span
-                      className={`px-2 py-1 text-[10px] rounded font-bold ${item.technicalScore >= 60 ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-400"}`}>
+                      className={`shrink-0 px-3 py-1.5 text-[10px] rounded-lg font-bold whitespace-nowrap ${item.technicalScore >= 60 ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-400"}`}>
                       评分:{" "}
                       {Math.round(
                         (item.technicalScore +

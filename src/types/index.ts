@@ -24,7 +24,7 @@ export interface Evaluation {
 /**
  * 回答响应类型
  */
-export type AnswerType = 'followup' | 'next' | 'finished';
+export type AnswerType = "followup" | "next" | "finished";
 
 /**
  * 面试记录项
@@ -41,6 +41,14 @@ export interface QuestionRecord {
 }
 
 /**
+ * 技能指标项
+ */
+export interface SkillItem {
+  name: string;
+  score: number;
+}
+
+/**
  * 面试结果
  */
 export interface InterviewResult {
@@ -49,6 +57,7 @@ export interface InterviewResult {
   experienceScore: number;
   summary: string;
   questions: QuestionRecord[];
+  skills?: SkillItem[];
 }
 
 /**
@@ -71,7 +80,7 @@ export interface SubmitAnswerResponse {
 /**
  * 消息类型
  */
-export type MessageRole = 'ai' | 'user';
+export type MessageRole = "ai" | "user";
 
 /**
  * 聊天消息
