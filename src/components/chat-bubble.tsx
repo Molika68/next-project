@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { LoadingDots } from "./loading-dots";
 import type { ChatMessage } from "@/types";
 
 interface ChatBubbleProps {
@@ -10,32 +11,47 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(message.role === "ai");
+  const [displayedText, setDisplayedText] = useState(
+    message.isLoading ? "" : message.content,
+  );
+  const [isTyping, setIsTyping] = useState(
+    message.role === "ai" && !message.isLoading && message.content.length > 0,
+  );
 
   useEffect(() => {
-    if (message.role !== "ai") {
-      setDisplayedText(message.content);
+    // 跳过loading状态的处理
+    if (message.isLoading) {
+      setDisplayedText("");
+      setIsTyping(false);
       return;
     }
 
-    setDisplayedText("");
-    setIsTyping(true);
+    if (message.role !== "ai") {
+      setDisplayedText(message.content);
+      setIsTyping(false);
+      return;
+    }
 
-    let index = 0;
-    const text = message.content;
-    const interval = setInterval(() => {
-      if (index < text.length) {
-        setDisplayedText(text.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(interval);
-        setIsTyping(false);
-      }
-    }, 20);
+    // 只有当内容变化且有内容时才启动打字机效果
+    if (message.content.length > 0) {
+      setDisplayedText("");
+      setIsTyping(true);
 
-    return () => clearInterval(interval);
-  }, [message.content, message.role]);
+      let index = 0;
+      const text = message.content;
+      const interval = setInterval(() => {
+        if (index < text.length) {
+          setDisplayedText(text.slice(0, index + 1));
+          index++;
+        } else {
+          clearInterval(interval);
+          setIsTyping(false);
+        }
+      }, 20);
+
+      return () => clearInterval(interval);
+    }
+  }, [message.content, message.role, message.isLoading]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("zh-CN", {
@@ -78,22 +94,33 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 rounded-l-2xl"></div>
           )}
           {/* 追问标识 */}
-          {message.evaluation && message.evaluation.technicalScore < 60 && (
-            <div className="flex items-center gap-2 mb-2 text-amber-500 text-xs font-bold">
-              <Icon icon="solar:danger-bold" />
-              <span>深度追问：基础概念解释尚可，但缺乏具体实现细节</span>
-            </div>
-          )}
-          <p>
-            {displayedText}
-            {isTyping && (
-              <span className="inline-block w-1 h-4 bg-current ml-0.5 animate-pulse" />
+          {message.evaluation &&
+            message.evaluation.technicalScore < 60 &&
+            !message.isLoading && (
+              <div className="flex items-center gap-2 mb-2 text-amber-500 text-xs font-bold">
+                <Icon icon="solar:danger-bold" />
+                <span>深度追问：基础概念解释尚可，但缺乏具体实现细节</span>
+              </div>
             )}
-          </p>
+
+          {/* loading状态显示 */}
+          {message.isLoading ? (
+            <span className="flex items-center gap-1">
+              <span>正在思考</span>
+              <LoadingDots />
+            </span>
+          ) : (
+            <p>
+              {displayedText}
+              {isTyping && (
+                <span className="inline-block w-1 h-4 bg-current ml-0.5 animate-pulse" />
+              )}
+            </p>
+          )}
         </div>
 
-        {/* 评价信息 */}
-        {message.evaluation && (
+        {/* 评价信息 - loading状态不显示 */}
+        {message.evaluation && !message.isLoading && (
           <div className="mt-2 px-3 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
             <div className="flex justify-between items-center mb-2">
               <div className="flex gap-4">
@@ -123,10 +150,13 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
           </div>
         )}
 
-        <span
-          className={`text-[10px] text-slate-500 mt-2 block ${message.role === "ai" ? "ml-1" : "text-right mr-1"}`}>
-          {formatTime(message.timestamp)}
-        </span>
+        {/* 时间 - loading状态不显示 */}
+        {!message.isLoading && (
+          <span
+            className={`text-[10px] text-slate-500 mt-2 block ${message.role === "ai" ? "ml-1" : "text-right mr-1"}`}>
+            {formatTime(message.timestamp)}
+          </span>
+        )}
       </div>
     </div>
   );

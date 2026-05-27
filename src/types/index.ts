@@ -19,6 +19,8 @@ export interface Evaluation {
   communicationScore: number;
   experienceScore: number;
   feedback: string;
+  /** 技术栈评分（如 {"React": 85, "Vue": 78}） */
+  techSkillScores?: Record<string, number>;
 }
 
 /**
@@ -37,6 +39,10 @@ export interface QuestionRecord {
   communicationScore: number;
   experienceScore: number;
   feedback: string;
+  /** 该问题涉及的技术栈 */
+  techSkills?: string[];
+  /** 技术栈评分 */
+  techSkillScores?: Record<string, number>;
   createdAt: string;
 }
 
@@ -56,8 +62,9 @@ export interface InterviewResult {
   communicationScore: number;
   experienceScore: number;
   summary: string;
+  /** 动态技能评分维度（用于雷达图） */
+  skills: SkillItem[];
   questions: QuestionRecord[];
-  skills?: SkillItem[];
 }
 
 /**
@@ -66,6 +73,8 @@ export interface InterviewResult {
 export interface StartInterviewResponse {
   interviewId: string;
   question: Question;
+  /** 从简历中提取的技术栈列表 */
+  extractedTechSkills: string[];
 }
 
 /**
@@ -91,4 +100,5 @@ export interface ChatMessage {
   content: string;
   evaluation?: Evaluation;
   timestamp: Date;
+  isLoading?: boolean;
 }

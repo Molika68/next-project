@@ -61,7 +61,20 @@ export default function InterviewPage() {
       content: answer,
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, userMessage]);
+
+    // 使用临时id，确保替换时保持同一组件实例
+    const tempAiId = `ai-${Date.now()}`;
+
+    // 创建AI loading消息
+    const aiLoadingMessage: ChatMessage = {
+      id: tempAiId,
+      role: "ai",
+      content: "",
+      timestamp: new Date(),
+      isLoading: true,
+    };
+
+    setMessages(prev => [...prev, userMessage, aiLoadingMessage]);
 
     try {
       const response: SubmitAnswerResponse = await submitAnswer(
@@ -71,13 +84,26 @@ export default function InterviewPage() {
 
       if (response.question) {
         const aiMessage: ChatMessage = {
-          id: response.question.id,
+          id: tempAiId, // 使用相同的id，避免React重新渲染
           role: "ai",
           content: response.question.questionText,
           evaluation: response.evaluation,
           timestamp: new Date(),
+          isLoading: false,
         };
-        setMessages(prev => [...prev, aiMessage]);
+
+        // 替换loading消息为真实消息
+        setMessages(prev => {
+          const newMessages = [...prev];
+          // 找到并替换loading消息
+          const loadingIndex = newMessages.findIndex(
+            msg => msg.id === tempAiId,
+          );
+          if (loadingIndex !== -1) {
+            newMessages[loadingIndex] = aiMessage;
+          }
+          return newMessages;
+        });
 
         if (response.type === "next") {
           setQuestionCount(prev => prev + 1);
@@ -92,6 +118,8 @@ export default function InterviewPage() {
     } catch (error) {
       toast.error("提交回答失败，请稍后重试");
       console.error("Failed to submit answer:", error);
+      // 移除loading消息
+      setMessages(prev => prev.filter(msg => msg.id !== tempAiId));
     } finally {
       setIsLoading(false);
     }

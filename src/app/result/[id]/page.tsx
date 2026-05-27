@@ -121,7 +121,7 @@ export default function ResultPage() {
           </div>
           <button
             onClick={handleRestart}
-            className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+            className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors cursor-pointer">
             <Icon icon="solar:refresh-bold" />
             重新面试
           </button>
@@ -354,11 +354,11 @@ export default function ResultPage() {
         <div className="mt-12 flex justify-center gap-6">
           <button
             onClick={handleRestart}
-            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
+            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer">
             <Icon icon="solar:refresh-bold" />
             重新开始面试
           </button>
-          <button className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all flex items-center gap-2">
+          <button className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer">
             <Icon icon="solar:download-bold" />
             下载 PDF 报告
           </button>

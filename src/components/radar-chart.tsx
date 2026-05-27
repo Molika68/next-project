@@ -12,13 +12,14 @@ interface RadarChartProps {
 
 export function RadarChart({ result }: RadarChartProps) {
   // 动态获取指标数据，优先使用接口返回的 skills，否则使用默认指标
-  const skills = result.skills && result.skills.length > 0
-    ? result.skills
-    : [
-        { name: "技术能力", score: result.technicalScore },
-        { name: "表达能力", score: result.communicationScore },
-        { name: "项目经验", score: result.experienceScore },
-      ];
+  const skills =
+    result.skills && result.skills.length > 0
+      ? result.skills
+      : [
+          { name: "技术能力", score: result.technicalScore },
+          { name: "表达能力", score: result.communicationScore },
+          { name: "项目经验", score: result.experienceScore },
+        ];
 
   const option = {
     backgroundColor: "transparent",

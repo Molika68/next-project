@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 import { startInterview } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { LoadingDots } from "@/components/loading-dots";
 
 export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
@@ -143,7 +144,10 @@ export default function Home() {
                       : "bg-slate-800 text-slate-500 cursor-not-allowed"
                   }`}>
                   {isUploading ? (
-                    <>正在生成面试题...</>
+                    <>
+                      正在生成面试题
+                      <LoadingDots />
+                    </>
                   ) : (
                     <>
                       开始面试
