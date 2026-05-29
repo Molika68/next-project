@@ -2,8 +2,42 @@
 
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import { LoadingDots } from "./loading-dots";
 import type { ChatMessage } from "@/types";
+
+/**
+ * @description 检测内容是否包含目录树格式
+ * @param content - 消息内容
+ * @returns boolean - 是否为目录树格式
+ */
+const isDirectoryTree = (content: string): boolean => {
+  // 检测目录树特征：包含 ├──、└──、│ 等特殊字符
+  const treePatterns = [
+    /^\s*src\//,
+    /├──/,
+    /└──/,
+    /│\s*/,
+    /──\s*[\w\/]+(#.*)?$/,
+  ];
+  const matches = treePatterns.filter(pattern => pattern.test(content));
+  return matches.length >= 2;
+};
+
+/**
+ * @description 将目录树格式包装为代码块
+ * @param content - 消息内容
+ * @returns string - 处理后的内容
+ */
+const formatContent = (content: string): string => {
+  if (isDirectoryTree(content)) {
+    return "```\n" + content + "\n```";
+  }
+  return content;
+};
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -109,13 +143,128 @@ export function ChatBubble({ message, animationDelay = 0 }: ChatBubbleProps) {
               <span>正在思考</span>
               <LoadingDots />
             </span>
-          ) : (
-            <p>
+          ) : isTyping ? (
+            <p className="whitespace-pre-wrap">
               {displayedText}
-              {isTyping && (
-                <span className="inline-block w-1 h-4 bg-current ml-0.5 animate-pulse" />
-              )}
+              <span className="inline-block w-1 h-4 bg-current ml-0.5 animate-pulse" />
             </p>
+          ) : (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={{
+                code({
+                  node,
+                  inline,
+                  className,
+                  children,
+                  ...props
+                }: {
+                  node?: any;
+                  inline?: boolean;
+                  className?: string;
+                  children?: React.ReactNode;
+                }) {
+                  return !inline ? (
+                    <pre className="bg-[#1e1e1e] rounded-lg p-4 overflow-x-auto my-3 text-sm font-mono">
+                      <code className="hljs" {...props}>
+                        {children}
+                      </code>
+                    </pre>
+                  ) : (
+                    <code
+                      className="bg-slate-700/80 px-2 py-0.5 rounded text-cyan-400 text-sm font-mono"
+                      {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+                p({ children }) {
+                  return <p className="my-2 leading-relaxed">{children}</p>;
+                },
+                ul({ children }) {
+                  return (
+                    <ul className="list-disc list-inside space-y-1.5 my-3">
+                      {children}
+                    </ul>
+                  );
+                },
+                ol({ children }) {
+                  return (
+                    <ol className="list-decimal list-inside space-y-1.5 my-3">
+                      {children}
+                    </ol>
+                  );
+                },
+                li({ children }) {
+                  return (
+                    <li className="text-slate-200 text-sm leading-relaxed">
+                      {children}
+                    </li>
+                  );
+                },
+                strong({ children }) {
+                  return (
+                    <strong className="text-white font-semibold">
+                      {children}
+                    </strong>
+                  );
+                },
+                em({ children }) {
+                  return <em className="text-purple-400 italic">{children}</em>;
+                },
+                blockquote({ children }) {
+                  return (
+                    <blockquote className="border-l-2 border-indigo-500 pl-4 italic text-slate-300 my-3 bg-slate-800/30 py-2 rounded-r">
+                      {children}
+                    </blockquote>
+                  );
+                },
+                h1({ children }) {
+                  return (
+                    <h1 className="text-xl font-bold text-white my-3 border-b border-slate-700 pb-2">
+                      {children}
+                    </h1>
+                  );
+                },
+                h2({ children }) {
+                  return (
+                    <h2 className="text-lg font-bold text-white my-3">
+                      {children}
+                    </h2>
+                  );
+                },
+                h3({ children }) {
+                  return (
+                    <h3 className="text-base font-bold text-white my-2">
+                      {children}
+                    </h3>
+                  );
+                },
+                table({ children }) {
+                  return (
+                    <div className="my-3 overflow-x-auto">
+                      <table className="text-sm">{children}</table>
+                    </div>
+                  );
+                },
+                th({ children }) {
+                  return (
+                    <th className="border border-slate-600 px-3 py-2 bg-slate-800 text-left">
+                      {children}
+                    </th>
+                  );
+                },
+                td({ children }) {
+                  return (
+                    <td className="border border-slate-600 px-3 py-2">
+                      {children}
+                    </td>
+                  );
+                },
+              }}>
+              {formatContent(message.content)}
+            </ReactMarkdown>
           )}
         </div>
 

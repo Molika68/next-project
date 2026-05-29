@@ -5,9 +5,41 @@ import { useRouter, useParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import { RadarChart } from "@/components/radar-chart";
 import { getInterviewResult } from "@/lib/api";
 import type { InterviewResult } from "@/types";
+
+/**
+ * @description 检测内容是否包含目录树格式
+ * @param content - 消息内容
+ * @returns boolean - 是否为目录树格式
+ */
+const isDirectoryTree = (content: string): boolean => {
+  const treePatterns = [
+    /^\s*src\//,
+    /├──/,
+    /└──/,
+    /│\s*/,
+    /──\s*[\w\/]+(#.*)?$/,
+  ];
+  const matches = treePatterns.filter(pattern => pattern.test(content));
+  return matches.length >= 2;
+};
+
+/**
+ * @description 将目录树格式包装为代码块
+ * @param content - 消息内容
+ * @returns string - 处理后的内容
+ */
+const formatContent = (content: string): string => {
+  if (isDirectoryTree(content)) {
+    return "```\n" + content + "\n```";
+  }
+  return content;
+};
 
 export default function ResultPage() {
   const [result, setResult] = useState<InterviewResult | null>(null);
@@ -147,13 +179,13 @@ export default function ResultPage() {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-slate-300">技术能力</span>
-                  <span className="text-indigo-400 font-bold">
+                  <span className="text-cyan-400 font-bold">
                     {result.technicalScore}/100
                   </span>
                 </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
                   <div
-                    className="bg-indigo-500 h-full rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                    className="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full shadow-[0_0_15px_rgba(34,211,238,0.6)] transition-all duration-500"
                     style={{ width: `${result.technicalScore}%` }}
                   />
                 </div>
@@ -161,13 +193,13 @@ export default function ResultPage() {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-slate-300">表达能力</span>
-                  <span className="text-purple-400 font-bold">
+                  <span className="text-orange-400 font-bold">
                     {result.communicationScore}/100
                   </span>
                 </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
                   <div
-                    className="bg-purple-500 h-full rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                    className="bg-gradient-to-r from-orange-400 to-amber-400 h-full rounded-full shadow-[0_0_15px_rgba(251,146,60,0.6)] transition-all duration-500"
                     style={{ width: `${result.communicationScore}%` }}
                   />
                 </div>
@@ -179,9 +211,9 @@ export default function ResultPage() {
                     {result.experienceScore}/100
                   </span>
                 </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
                   <div
-                    className="bg-pink-500 h-full rounded-full shadow-[0_0_10px_rgba(236,72,153,0.5)]"
+                    className="bg-gradient-to-r from-pink-400 to-rose-400 h-full rounded-full shadow-[0_0_15px_rgba(244,114,182,0.6)] transition-all duration-500"
                     style={{ width: `${result.experienceScore}%` }}
                   />
                 </div>
@@ -339,10 +371,169 @@ export default function ResultPage() {
                       )}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-400">A: {item.answerText}</p>
+                  <div className="text-sm text-slate-400 prose prose-slate max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        code({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }: {
+                          node?: any;
+                          inline?: boolean;
+                          className?: string;
+                          children?: React.ReactNode;
+                        }) {
+                          return !inline ? (
+                            <pre className="bg-[#1e1e1e] rounded-lg p-4 overflow-x-auto my-3 text-sm font-mono">
+                              <code className="hljs" {...props}>
+                                {children}
+                              </code>
+                            </pre>
+                          ) : (
+                            <code
+                              className="bg-slate-700/80 px-2 py-0.5 rounded text-cyan-400 text-sm font-mono"
+                              {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                        p({ children }) {
+                          return (
+                            <p className="my-2 leading-relaxed">{children}</p>
+                          );
+                        },
+                        ul({ children }) {
+                          return (
+                            <ul className="list-disc list-inside space-y-1.5 my-3">
+                              {children}
+                            </ul>
+                          );
+                        },
+                        ol({ children }) {
+                          return (
+                            <ol className="list-decimal list-inside space-y-1.5 my-3">
+                              {children}
+                            </ol>
+                          );
+                        },
+                        li({ children }) {
+                          return (
+                            <li className="text-slate-300 text-sm leading-relaxed">
+                              {children}
+                            </li>
+                          );
+                        },
+                        strong({ children }) {
+                          return (
+                            <strong className="text-white font-semibold">
+                              {children}
+                            </strong>
+                          );
+                        },
+                        em({ children }) {
+                          return (
+                            <em className="text-purple-400 italic">
+                              {children}
+                            </em>
+                          );
+                        },
+                        blockquote({ children }) {
+                          return (
+                            <blockquote className="border-l-2 border-indigo-500 pl-4 italic text-slate-300 my-3 bg-slate-800/30 py-2 rounded-r">
+                              {children}
+                            </blockquote>
+                          );
+                        },
+                        h1({ children }) {
+                          return (
+                            <h1 className="text-xl font-bold text-white my-3 border-b border-slate-700 pb-2">
+                              {children}
+                            </h1>
+                          );
+                        },
+                        h2({ children }) {
+                          return (
+                            <h2 className="text-lg font-bold text-white my-3">
+                              {children}
+                            </h2>
+                          );
+                        },
+                        h3({ children }) {
+                          return (
+                            <h3 className="text-base font-bold text-white my-2">
+                              {children}
+                            </h3>
+                          );
+                        },
+                        table({ children }) {
+                          return (
+                            <div className="my-3 overflow-x-auto">
+                              <table className="text-sm">{children}</table>
+                            </div>
+                          );
+                        },
+                        th({ children }) {
+                          return (
+                            <th className="border border-slate-600 px-3 py-2 bg-slate-800 text-left">
+                              {children}
+                            </th>
+                          );
+                        },
+                        td({ children }) {
+                          return (
+                            <td className="border border-slate-600 px-3 py-2">
+                              {children}
+                            </td>
+                          );
+                        },
+                      }}>
+                      {formatContent(item.answerText)}
+                    </ReactMarkdown>
+                  </div>
                   {item.feedback && (
-                    <div className="text-[10px] text-amber-500/80 bg-amber-500/5 p-2 rounded italic">
-                      AI 评价：{item.feedback}
+                    <div className="text-xs text-amber-400/80 bg-amber-500/5 p-3 rounded-lg italic border border-amber-500/10 mt-3">
+                      <span className="font-semibold">AI 评价：</span>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          p: ({ children }) => (
+                            <span className="inline">{children}</span>
+                          ),
+                          code({
+                            node,
+                            inline,
+                            className,
+                            children,
+                            ...props
+                          }: {
+                            node?: any;
+                            inline?: boolean;
+                            className?: string;
+                            children?: React.ReactNode;
+                          }) {
+                            return !inline ? (
+                              <pre className="bg-[#1e1e1e] rounded-lg p-3 overflow-x-auto my-2 text-xs font-mono">
+                                <code className="hljs" {...props}>
+                                  {children}
+                                </code>
+                              </pre>
+                            ) : (
+                              <code
+                                className="bg-slate-700/80 px-1.5 py-0.5 rounded text-cyan-400 text-xs font-mono"
+                                {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}>
+                        {item.feedback}
+                      </ReactMarkdown>
                     </div>
                   )}
                 </div>
